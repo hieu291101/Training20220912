@@ -1,0 +1,66 @@
+@Html.ActionLink("Add to cart", "AddCart", "Cart", new { id = Model.ProductID },null)
+*****************
+Tao cart
+ private NorthwindDataContext dt = new NorthwindDataContext();
+        
+        public int ProductID { set; get; }
+        public string ProductName { set; get; }
+        public decimal UnitPrice{ set; get; }
+        public int Quantity { set; get; }
+        public decimal Total{ set; get; }
+
+        public Cart (int productID)
+        {
+            this.ProductID = productID;
+            Product p = dt.Products.Single(n => n.ProductID == productID);
+            ProductName = p.ProductName;
+            UnitPrice = (decimal)p.UnitPrice;
+            Quantity = 1;
+        }
+***********************
+Tao Controller
+ public List<Cart> GetListCarts()
+        {
+            List<Cart> carts = Session["Cart"] as List<Cart>;
+            if (carts == null)
+            {
+                carts = new List<Cart>();
+                Session["Cart"] = carts;
+            }
+            return carts;
+        }
+        //private int Count()
+        //{
+
+        //}
+        public ActionResult AddCart(int id)
+        {
+            List<Cart> carts = GetListCarts();
+            Cart c = carts.Find(s => s.ProductID == id);
+            if(c == null)
+            {
+                c = new Cart(id);
+                carts.Add(c);
+            }
+            else
+            {
+                c.Quantity++;
+            }
+
+            return RedirectToAction("ListCarts");
+        }
+
+        public ActionResult ListCarts()
+        {
+            List<Cart> carts = GetListCarts();
+
+
+            return View(carts);
+        }
+
+        public ActionResult Index()
+        {
+            return View();
+        }
+*********************
+Tao View tu class ListView
